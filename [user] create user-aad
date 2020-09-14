@@ -1,0 +1,33 @@
+#definir caminho do CSV
+$csv = "c:\temp\listas_users1.csv"
+
+#conexão no azure AD
+Connect-AzureAD -TenantId "2c3e692f-3dee-4f8b-9aff-7764bd2071ea"
+
+#importar usuários do CSV
+$users = Import-Csv $csv -Delimiter ';' -Encoding UTF8
+
+#criar variável de password
+$Userpassword = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
+
+$setar password
+$Userpassword.Password = "Senha@1234"
+
+foreach ($u in $users) {
+
+#definir variável de UPN usando CSV
+$email = $u.email
+
+#definir Display Name usando CSV
+$nome = $u.displayname
+
+#definir varável de departamento usando CSV
+$departament = $u.departament
+
+#Definir mailnickname usando o UPN antes do @
+$Mailnickname = $u.Email.split("@",3)[0]
+
+#comando de criação do user no Azure AD
+New-AzureADUser -UserPrincipalName "$email" -DisplayName "$nome" -MailNickName "$mailnickname" -PasswordProfile $Userpassword -AccountEnabled $true -Department "$departament"
+
+}
